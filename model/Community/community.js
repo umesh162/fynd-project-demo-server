@@ -11,13 +11,7 @@ const communitySchema = Schema(
     },
     description: { type: String },
     type: { type: String, enum: ["Private", "Public"], default: "Public" },
-    // memberRequests: [
-    //   {
-    //     user: { type: Schema.Types.ObjectId, refPath: "userRef", default: [] },
-    //     isAccepted: { type: Boolean, default: false },
-    //     isBlocked: { type: Boolean, default: false },
-    //   },
-    // ],
+
     members: [
       {
         user: { type: Schema.Types.ObjectId, refPath: "userRef" },

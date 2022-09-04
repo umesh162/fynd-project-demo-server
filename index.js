@@ -24,22 +24,12 @@ app.use("/", routes());
 
 // --------deploying Application -----------
 
-// __dirname = path.resolve();
-// if (process.env.NODE_ENV === "production") {
-//   app.use(express.static(path.join(__dirname, "/dist")));
-//   app.get("*", (req, res) => {
-//     res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
-//   });
-// } else {
-//   app.get("/", (req, res) => {
-//     res.send("API is running..");
-//   });
-// }
-
 app.use(express.static(path.join(process.cwd(), "public")));
 app.use("*", function (req, res, next) {
   res.sendFile(path.joi(process.cwd(), "public", "index.html"));
 });
+
+// ----------------------------------
 
 const port = process.env.PORT || 8000;
 
