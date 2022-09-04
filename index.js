@@ -4,7 +4,6 @@ const path = require("path");
 
 require("dotenv").config();
 const cookieParser = require("cookie-parser");
-// const bodyParser = require("body-parser");
 const app = express();
 const routes = require("./routes");
 var cors = require("cors");
@@ -14,7 +13,6 @@ mongoose
   .then(console.log("db Connected"))
   .catch((err) => console.log(err));
 
-// app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -24,10 +22,10 @@ app.use("/", routes());
 
 // --------deploying Application -----------
 
-app.use(express.static(path.join(process.cwd(), "public")));
-app.use(function (req, res, next) {
-  res.sendFile(path.joi(process.cwd(), "public", "index.html"));
-});
+// app.use(express.static(path.join(process.cwd(), "public")));
+// app.use(function (req, res, next) {
+//   res.sendFile(path.joi(process.cwd(), "public", "index.html"));
+// });
 
 // ----------------------------------
 
