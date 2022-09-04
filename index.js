@@ -36,6 +36,11 @@ app.use("/", routes());
 //   });
 // }
 
+app.use(express.static(path.join(process.cwd(), "public")));
+app.use(function (req, res, next) {
+  res.sendFile(path.joi(process.cwd(), "public", "index.html"));
+});
+
 const port = process.env.PORT || 8000;
 
 app.listen(port, () => {
