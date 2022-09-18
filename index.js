@@ -24,7 +24,7 @@ app.use("/", routes());
 
 app.use(express.static(path.join(process.cwd(), "public")));
 app.use(function (req, res, next) {
-  res.sendFile(path.joi(process.cwd(), "public", "index.html"));
+  res.sendFile(path.join(process.cwd(), "public", "index.html"));
 });
 
 // ----------------------------------
