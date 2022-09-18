@@ -1,6 +1,4 @@
 const model = require("../../model");
-var expressJwt = require("express-jwt");
-const { request } = require("express");
 
 class user {
   getPosts = async (req, res) => {

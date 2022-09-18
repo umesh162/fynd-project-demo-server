@@ -1,8 +1,5 @@
 const model = require("../../model");
-var expressJwt = require("express-jwt");
-const { request } = require("express");
 const { default: mongoose } = require("mongoose");
-const { pipeline } = require("form-data");
 
 class user {
   getPosts = async (req, res) => {
@@ -28,11 +25,9 @@ class user {
         ])
         .select("communityName title Image video createdBy")
         .sort({ createdAt: -1 });
-      console.log(data);
       res.send(data);
       return data;
     } catch (e) {
-      console.log(e);
       res.send(e);
     }
   };
@@ -44,7 +39,6 @@ class user {
         communityRef: "communities",
         createdBy: { user: req.user.name },
       });
-      console.log(data);
       res.status(200).send(data);
     } catch (e) {
       res.status(200).send(e);
@@ -54,30 +48,6 @@ class user {
     model.User;
     model.Community;
     try {
-      // let payload = {
-      //   $and: [
-      //     {
-      //       isDelete: false,
-      //       isActive: true,
-      //       communityName: req.body.getByCommunity,
-      //     },
-      //   ],
-      // };
-      // const data = await model.Posts.find(payload);
-      //   .populate([
-      //     {
-      //       path: "createdBy.user",
-      //       model: "User",
-      //       select: "firstname lastname",
-      //     },
-      //     {
-      //       path: "communityName",
-      //       model: "Community",
-      //       select: "communityName communityImage",
-      //     },
-      //   ])
-      //   .select("communityName title Image video createdBy")
-      //   .sort({ createdAt: -1 });
       const data = await model.Posts.aggregate([
         {
           $match: {
@@ -89,8 +59,7 @@ class user {
         {
           $lookup: {
             from: "comments",
-            // localField: "comments",
-            // foreignField: "_id",
+
             let: { comments: "$comments" },
             pipeline: [
               {
@@ -140,8 +109,7 @@ class user {
                 },
               },
             ],
-            // localField: "like",
-            // foreignField: "_id",
+
             as: "like",
           },
         },
@@ -183,12 +151,10 @@ class user {
           $sort: { createdAt: -1 },
         },
       ]);
-      // console.log(payload);
-      console.log(req.user.name);
+
       res.status(200).send(data);
       return data;
     } catch (e) {
-      console.log(e);
       res.status(404).send(e);
     }
   };
@@ -206,9 +172,6 @@ class user {
       return res.status(404).send(e);
     }
   };
-  // userJoinCommunity = (req, res) => {
-
-  // }
 }
 
 module.exports = new user();

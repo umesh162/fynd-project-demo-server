@@ -21,7 +21,7 @@ class community {
         ],
       };
       var count = await model.Community.find(payload).countDocuments();
-      console.log(count);
+
       var data = await model.Community.find(payload)
         .populate([
           {
@@ -39,101 +39,9 @@ class community {
           "communityName description type communityImage members createdBy"
         );
 
-      // var data = await model.Community.aggregate([
-      //   { $match: payload },
-      //   {
-      //     $lookup: {
-      //       from: "users",
-      //       localField: "createdBy.user",
-      //       foreignField: "_id",
-      //       as: "createdBy.user",
-      //     },
-      //   },
-      //   // {
-      //   //   $lookup: {
-      //   //     from: "users",
-      //   //     let: { members: "$members" },
-      //   //     pipeline: [
-      //   //       {
-      //   //         $match: {
-      //   //           $expr: {
-      //   //             $in: ["$_id", "$$members.user"],
-      //   //             $in: [true, "$$members.isAccepted"],
-      //   //             $in: [false, "$$members.isAccepted"],
-      //   //             // $in: ["$_id", "$$members.user"],
-      //   //           },
-      //   //         },
-      //   //       },
-      //   //     ],
-      //   //     as: "members",
-      //   //   },
-      //   // },
-      //   { $set: { requestPending: "$members" } },
-      //   // { $unwind: "$members" },
-      //   // {
-      //   //   $lookup: {
-      //   //     from: "users",
-      //   //     localField: "members.user",
-      //   //     foreignField: "_id",
-      //   //     as: "members.user",
-      //   //   },
-      //   // },
-      //   // {
-      //   //   $group: {
-      //   //     _id: "$_id",
-      //   //     communityName: { $first: "$communityName" },
-      //   //     communityImage: { $first: "$communityImage" },
-      //   //     description: { $first: "$description" },
-      //   //     type: { $first: "$type" },
-      //   //     isDelete: { $first: "$isDelete" },
-      //   //     isActive: { $first: "$isActive" },
-      //   //     createdBy: { $first: "$createdBy" },
-      //   //     userRef: { $first: "$userRef" },
-      //   //     createdAt: { $first: "$isDelete" },
-      //   //     updatedAt: { $first: "$isDelete" },
-      //   //     members: { $push: "$members" },
-      //   //   },
-      //   // },
-      //   // {
-      //   //   $addFields: {
-      //   //     requestPending: {
-      //   //       $and: [
-      //   //         {
-      //   //           $in: [
-      //   //             mongoose.Types.ObjectId(req.user.name),
-      //   //             "$members.user._id",
-      //   //           ],
-      //   //         },
-      //   //         {
-      //   //           $in: [true, "$members.user._id"],
-      //   //         },
-      //   //       ],
-      //   //     },
-      //   //   },
-      //   // },
-      // ]);
-
-      // var data = await model.Community.populate(data, {
-      //   path: "requestPending.user",
-      //   model: "User",
-      //   match: { user: req.user.name },
-      //   select: "firstname lastname",
-      // });
-      // var newData = [...data];
-      // newData.forEach((x) =>
-      //   x.members.forEach((y) => {
-      //     if (y.user._id == req.user.name && y.isAccepted == false) {
-      //       Object.assign(x, { pendingRequest: true });
-      //       x[pendingRequest] = true;
-      //     }
-      //   })
-      // );
-      console.log("old data", data);
-      // console.log("new data", newData);
       res.status(200).send(data);
       return data;
     } catch (e) {
-      console.log("e", e);
       res.status(200).send(e);
     }
   };
@@ -152,8 +60,7 @@ class community {
           { "createdBy.user": req.user.name },
         ],
       };
-      console.log("payload", payload);
-      console.log(req.user);
+
       const data = await model.Community.find(payload)
         .populate([
           {
@@ -199,14 +106,13 @@ class community {
         .select(
           "communityName communityImage description type members createdBy members"
         );
-      console.log(data);
+
       var currentuser = { _id: req.user.name };
       if (currentuser._id == data.createdBy.user._id)
         currentuser.role = "owner";
       if (!!data.members.find((_) => _.user._id == currentuser._id))
         currentuser.role = "member";
 
-      console.log("currentuser", currentuser);
       let newdata = {};
       Object.assign(newdata, { data });
       Object.assign(newdata, { currentuser });
@@ -263,10 +169,8 @@ class community {
         });
       if (data.type == "Private")
         Object.assign(payload, { $push: { members: { user: userId } } });
-      console.log(payload);
       await model.Community.updateOne({ _id: req.body.communityId }, payload);
 
-      console.log(data);
       return res.status(200).json({
         msg: "Successfully Joined Channel",
         commId: data._id,
@@ -274,7 +178,6 @@ class community {
         data: data.members,
       });
     } catch (e) {
-      console.log(e);
       return res.status(500).send(e);
     }
   };
@@ -283,12 +186,12 @@ class community {
       var data = await model.Community.findOne({
         _id: req.body.communityId,
       });
-      console.log(data);
       if (data.createdBy.user != req.user.name)
         return res.status(403).send("Not authorized");
       if (!data.members.find((_) => _.user == req.body.memberId))
         return res.status(403).send("Member not exits");
-      if (!!req.body.isAccept)
+
+      if (req.body.isAccept === "true") {
         await model.Community.updateOne(
           {
             _id: req.body.communityId,
@@ -296,7 +199,8 @@ class community {
           },
           { $set: { "members.$.isAccepted": true } }
         );
-      if (!req.body.isAccept)
+      }
+      if (req.body.isAccept === "false") {
         await model.Community.updateOne(
           {
             _id: req.body.communityId,
@@ -304,14 +208,12 @@ class community {
           },
           { $pull: { members: { user: req.body.memberId } } }
         );
-      //   _id: req.body.communityId,
-      // });
+      }
       data = await model.Community.findOne({
         _id: req.body.communityId,
       });
       res.status(200).send(data);
     } catch (e) {
-      console.log(e);
       res.status(500).send(e);
     }
   };
@@ -329,8 +231,7 @@ class community {
         Object.assign(payload, { description: req.body.description });
       if (req.body.communityImage)
         Object.assign(payload, { communityImage: req.body.communityImage });
-      // if (req.body.lastname)
-      console.log(payload);
+
       await model.Community.updateOne(
         {
           _id: req.body.communityId,
@@ -343,7 +244,7 @@ class community {
         _id: req.body.communityId,
         "createdBy.user": req.user.name,
       });
-      // return res.status(200).send("right");
+
       return res.status(200).send(data);
     } catch (e) {
       return res.status(500).send(e);
@@ -377,13 +278,7 @@ class community {
         "createdBy.user": req.user.name,
       });
       if (!!data) return res.status(403).send("Admin cannot leave channel");
-      // await model.Community.findOne({
-      //   _id: req.body.communityId,
-      // "members.user": req.user.name,
-      // });
-      // console.log(data);
-      // if (!data) return res.status(403).send("Not A Member");
-      // console.log(data);
+
       await model.Community.updateOne(
         {
           _id: req.body.communityId,
@@ -397,9 +292,6 @@ class community {
       return res.status(200).send(data);
     } catch (e) {}
   };
-  // userJoinCommunity = (req, res) => {
-
-  // }
 }
 
 module.exports = new community();

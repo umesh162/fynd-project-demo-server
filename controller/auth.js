@@ -120,12 +120,9 @@ class auth {
     });
   };
 
-  //Protected routes
-  //User Proerty will return a id of user in from of req
   isSignedIn = expressJwt({ secret: process.env.SECRET, userProperty: "auth" });
 
   isAuthenticated = (req, res, next) => {
-    // console.log(req.profile, req.auth._id);
     let checker = req.profile && req.auth && req.profile._id == req.auth._id;
     if (!checker) {
       return res.status(403).json({

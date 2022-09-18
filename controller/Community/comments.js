@@ -1,6 +1,4 @@
 const model = require("../../model");
-var expressJwt = require("express-jwt");
-const { request } = require("express");
 
 class user {
   addAComment = async (req, res) => {
@@ -34,10 +32,6 @@ class user {
           },
         }
       );
-      // const record = await model.Comment.findOne({
-      //   "createdBy.user": req.user.name,
-      //   postId: req.body.postId,
-      // });
       res.status(200).send(data);
     } catch (e) {
       res.status(403).send(e);

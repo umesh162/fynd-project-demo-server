@@ -1,11 +1,8 @@
 const model = require("../model");
-var expressJwt = require("express-jwt");
 
 class user {
   getUserById = (req, res, next, id) => {
-    console.log(req.headers);
     model.User.findById(id).exec((err, user) => {
-      console.log(err, user);
       if (err || !user) {
         return res.status(400).json({
           error: "No User Was Found in DB",
@@ -43,7 +40,6 @@ class user {
   uploadImage = async (req, res) => {
     try {
       const fileStr = req.body.data;
-      console.log(fileStr);
       return res.status(200).json({
         msg: "Image Recieved",
       });
